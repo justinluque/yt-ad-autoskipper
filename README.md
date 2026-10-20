@@ -6,6 +6,21 @@ This is useful when you are watching a YouTube video (or a playlist), and an ad 
 
 ## Download
 
+### Local Firefox build with ad muting
+
+This branch is based on the Firefox `0.6.0_hotfix` release. Ads are muted by
+default; the video's previous mute state is restored when ads finish. Videos
+that were already muted stay muted. Change **Mute ads** in the extension's
+preferences; changes apply to open YouTube tabs immediately.
+
+Run `make build` to create `build/yt-ad-autoskipper.zip`. For a temporary install,
+open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**,
+and select `manifest.json` in this directory. Disable the store version first
+to avoid running two skippers. Temporary add-ons are removed on Firefox restart;
+permanent installation in standard Firefox requires Mozilla signing.
+
+Run the regression checks with `node --test tests/*.test.cjs`.
+
 ### Chrome
 
 [Get it from Chrome Web Store](https://chrome.google.com/webstore/detail/youtube-ad-auto-skipper/lokpenepehfdekijkebhpnpcjjpngpnd)
