@@ -1,3 +1,5 @@
+.PHONY: build version
+
 build:
 	@rm -rf build
 	@mkdir build

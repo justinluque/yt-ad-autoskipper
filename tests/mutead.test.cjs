@@ -11,12 +11,17 @@ async function setup(preference = true, initialPlayers = [], deferred = false) {
   const events = {};
   const settings = deferred ? new Promise(resolve => { resolveSettings = resolve; }) : Promise.resolve({ muteAds: preference });
   vm.runInNewContext(readFileSync('mutead.js', 'utf8'), {
-    document: { querySelectorAll: () => players.filter(p => p.ad) },
+    document: { querySelectorAll: () => players, addEventListener: (name, callback) => { events[name] = callback; } },
     MutationObserver: class {
       constructor(callback) { mutation = callback; }
       observe() {}
     },
-    window: { addEventListener: (name, callback) => { events[name] = callback; } },
+    window: {
+      addEventListener: (name, callback) => { events[name] = callback; },
+      getComputedStyle: element => element.style,
+      setInterval: callback => { events.poll = callback; return 1; },
+      clearInterval: () => {},
+    },
     browser: { storage: {
       local: { get: () => settings },
       onChanged: { addListener: callback => { changePreference = callback; } },
@@ -33,7 +38,9 @@ async function setup(preference = true, initialPlayers = [], deferred = false) {
   };
 }
 function player(videos, ad = true) {
-  return { ad, querySelectorAll: () => videos };
+  const adPlayer = { ad, markers: [], classList: { contains: () => adPlayer.ad },
+    querySelectorAll: selector => selector === 'video' ? videos : adPlayer.markers };
+  return adPlayer;
 }
 
 test('mutes an ad already playing and restores sound when it ends', async () => {
@@ -97,5 +104,43 @@ test('a preference change wins over a stale initial storage read', async () => {
   app.preference(false);
   app.resolveSettings(true);
   await Promise.resolve();
+  assert.equal(video.muted, false);
+});
+
+
+test('visible ad badge detects an ad without player ad classes', async () => {
+  const video = { muted: false };
+  const p = player([video], false);
+  p.markers = [{ getClientRects: () => [{}], style: { display: 'block', visibility: 'visible' } }];
+  const app = await setup(true, [p]);
+  assert.equal(video.muted, true);
+  p.markers = [];
+  app.update();
+  assert.equal(video.muted, false);
+});
+
+test('hidden leftover ad controls do not mute normal content', async () => {
+  const video = { muted: false };
+  const p = player([video], false);
+  p.markers = [
+    { getClientRects: () => [], style: { display: 'none', visibility: 'visible' } },
+    { getClientRects: () => [{}], style: { display: 'block', visibility: 'hidden' } },
+  ];
+  await setup(true, [p]);
+  assert.equal(video.muted, false);
+});
+
+test('a YouTube audio reset during an ad is muted again and original state restored', async () => {
+  const video = { muted: false };
+  const p = player([video]);
+  const app = await setup(true, [p]);
+  video.muted = false;
+  app.events.volumechange();
+  assert.equal(video.muted, true);
+  video.muted = false;
+  app.events.poll();
+  assert.equal(video.muted, true);
+  p.ad = false;
+  app.update();
   assert.equal(video.muted, false);
 });
