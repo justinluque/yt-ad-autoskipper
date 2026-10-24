@@ -1,9 +1,9 @@
 {
-  "name": "YouTube Ad Auto-skipper — Skip & Mute",
-  "short_name": "YouTube Ad Auto-skipper",
-  "description": "Firefox fork of Shreya Dahal's YouTube Ad Auto-skipper. Automatically skip available ads, mute ads, and restore the previous audio state.",
+  "name": "YT Ad Auto-skipper — Skip & Mute",
+  "short_name": "YT Ad Auto-skipper",
+  "description": "Fork of Shreya Dahal’s YouTube Ad Auto-skipper, adding optional ad muting and restoration of your previous audio state alongside automatic ad skipping. Free and open source, like the original.",
   "manifest_version": 2,
-  "version": "0.6.5",
+  "version": "0.6.6",
   "author": "Shreya Dahal (original); Justin Luque (fork)",
   "homepage_url": "https://github.com/justinluque/yt-ad-autoskipper",
   "content_scripts": [
