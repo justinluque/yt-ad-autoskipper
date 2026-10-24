@@ -1,4 +1,4 @@
-# YouTube Ad Auto-skipper — Firefox fork
+# YouTube Ad Auto-skipper — Skip & Mute
 
 A Firefox fork of [YouTube Ad Auto-skipper by Shreya Dahal (squgeim)](https://github.com/squgeim/yt-ad-autoskipper), with automatic ad muting and restoration of the previous audio state. This fork is maintained by [Justin Luque](https://github.com/justinluque) and is not an official upstream release.
 
