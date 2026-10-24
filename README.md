@@ -1,40 +1,23 @@
 # YT Ad Auto-skipper — Skip & Mute
 
-Fork of Shreya Dahal’s YouTube Ad Auto-skipper, adding optional ad muting and restoration of your previous audio state alongside automatic ad skipping. Free and open source, like the original.
+Automatic ad skipping, with **optional ad muting and sound restoration** added to [Shreya Dahal’s original Firefox extension](https://github.com/squgeim/yt-ad-autoskipper). Free and open source, like the original.
 
 [Install from Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/yt-ad-auto-skipper-skip-mute/)
 
-## About
+## What this fork adds
 
-Automatically skip YouTube ads when the Skip Ad button appears, and mute ads while they play. Free and open-source software, with no accounts, subscriptions, or tracking.
+- **Mute ads automatically.** Silence ads while they play. Enabled by default; switch it off in the extension’s Preferences.
+- **Restore your sound afterward.** Return to your previous audio state when ads end. Videos you had already muted stay muted.
+- **Keep YouTube’s mute control in sync.** Use the player’s native mute controls, with direct video muting as a fallback.
+- **Handle more ad layouts and audio resets.** Detect visible ad controls, reapply muting if an ad resets the audio, and handle player replacements.
 
-**Skip automatically**
+- **Super duper cool new icon.**
 
-Clicks YouTube’s Skip Ad button as soon as it becomes available.
+The original automatic skipping remains: click YouTube’s Skip Ad button when it becomes available. Ads still load and play; skip countdowns are not bypassed.
 
-**Mute ads, restore your sound**
+## Free and open source
 
-Silences ads and restores your previous audio state afterward. Videos you had already muted stay muted.
-
-**Choose how you watch**
-
-Ad muting is enabled by default. Turn it off in the extension’s preferences while keeping automatic skipping active.
-
-**Free and open source**
-
-Released under the GNU GPL v3.0 license. The code is publicly available to inspect, modify, and share. Your mute preference is stored locally; the extension contains no analytics or telemetry.
-
-Ads still load and play. The extension automates skipping and muting; it does not block ads or bypass YouTube’s skip countdown.
-
-**Credits**
-
-An independent fork of YouTube Ad Auto-skipper, originally created by Shreya Dahal (squgeim) and contributors. Ad-muting improvements and this fork are maintained by Justin Luque.
-
-Enjoying Skip & Mute? You can [buy me a coffee](https://buymeacoffee.com/justinluque) to support development and maintenance of this free, open-source fork. Donations are entirely optional.
-
-[Source code and issue reports](https://github.com/justinluque/yt-ad-autoskipper)
-
-[Original project](https://github.com/squgeim/yt-ad-autoskipper)
+Released under [GNU GPL v3.0](LICENSE.md). No accounts, subscriptions, analytics, or telemetry. Your mute preference stays in local extension storage.
 
 ## Install
 
@@ -91,3 +74,7 @@ The original extension, skip-button automation, and underlying Firefox codebase 
 This fork starts from the legacy Firefox 0.6.0 codebase at upstream commit `3d88e1c` and adds the ad-muting preference, detection and restoration logic, native mute synchronization, regression tests, and packaging/documentation changes. It does not include the newer TypeScript master branch’s subscription features. This is an independent fork, not an official upstream release.
 
 Distributed under the **GNU General Public License v3.0**, as in the original project. See [LICENSE.md](LICENSE.md). Existing author credits and the original license are retained.
+
+## Support this fork
+
+Enjoying Skip & Mute? You can [buy me a coffee](https://buymeacoffee.com/justinluque) to support development and maintenance of this free, open-source fork. Donations are entirely optional.
