@@ -12,6 +12,7 @@ It clicks YouTube's Skip Ad button when available and silences ads while they pl
 - Detection of visible ad controls when YouTube's usual ad classes are absent, and continued muting when ad sources reset the audio.
 - Handling of replaced players, navigation, and page hide/restore.
 - Automated regression checks for ad detection, mute restoration, native controls, and media fallback.
+- A red skip-symbol icon drawn as an editable vector, with PNGs sized for Firefox's toolbar and add-on manager.
 
 ## Download and try it
 
@@ -44,6 +45,8 @@ make build
 
 This produces `build/yt-ad-autoskipper.zip` and `build/yt-ad-autoskipper.xpi` from the same extension files. No dependencies need to be installed.
 
+The icon source is `logo.svg`. Pre-rendered PNGs are checked in, so normal builds do not require an image tool. To regenerate them after editing the vector, install `rsvg-convert` (librsvg) and run `make icons` before building.
+
 Version 0.6.4 passed 18 automated regression tests and was manually confirmed working in Firefox by this fork's maintainer. YouTube changes its player periodically; please include the affected player layout and Firefox version when reporting a problem.
 
 ## Privacy
@@ -52,7 +55,7 @@ The extension stores the mute preference locally using Firefox extension storage
 
 ## Credits and license
 
-The original extension, skip-button automation, icon, and underlying Firefox codebase were created by **Shreya Dahal (squgeim) and the upstream contributors**. Their Git history is preserved in this fork. Thank you for making the project available as open source.
+The original extension, skip-button automation, and underlying Firefox codebase were created by **Shreya Dahal (squgeim) and the upstream contributors**. Their Git history, including the original icon, is preserved in this fork. The current red skip-symbol icon was created for this fork. Thank you for making the project available as open source.
 
 - [Original repository](https://github.com/squgeim/yt-ad-autoskipper)
 - [Original Firefox add-on](https://addons.mozilla.org/en-US/firefox/addon/youtube-ad-auto-skipper/)

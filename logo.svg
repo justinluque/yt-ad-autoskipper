@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">YouTube Ad Auto-skipper Firefox fork</title>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="#ff0033"/>
+  <path fill="#fff" d="M39 34a3 3 0 0 1 4.6-2.5l39 30a3 3 0 0 1 0 5l-39 30A3 3 0 0 1 39 94Z"/>
+  <rect x="85" y="32" width="10" height="64" rx="5" fill="#fff"/>
+</svg>
