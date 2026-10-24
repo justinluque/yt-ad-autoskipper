@@ -1,3 +1,4 @@
+// Firefox fork modification: recognize YouTube's ytp-skip-ad-button class.
 (function () {
   var classList = [
     'videoAdUiSkipButton', // Old close ad button

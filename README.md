@@ -1,39 +1,64 @@
-# yt-ad-autoskipper
+# YouTube Ad Auto-skipper — Firefox fork
 
-A browser extension that automates skipping ad on YouTube. This is not an ad blocker, it just automates the process of clicking on the "Skip Ad" button on YouTube.
+A Firefox fork of [YouTube Ad Auto-skipper by Shreya Dahal (squgeim)](https://github.com/squgeim/yt-ad-autoskipper), with automatic ad muting and restoration of the previous audio state. This fork is maintained by [Justin Luque](https://github.com/justinluque) and is not an official upstream release.
 
-This is useful when you are watching a YouTube video (or a playlist), and an ad starts playing. YouTube allows you to skip the ad after 5 seconds, but if you can't be bothered to click it yourself (or you are AFK), this extension clicks that button for you.
+It clicks YouTube's Skip Ad button when available and silences ads while they play. It does not block ad requests or bypass YouTube's skip countdown.
 
-## Download
+## What this fork adds
 
-### Local Firefox build with ad muting
+- Optional ad muting, enabled by default, with changes applied to open tabs immediately.
+- YouTube's native player mute control, plus direct media muting as a fallback. The speaker icon and mute state are managed by YouTube; no replacement icon or overlay is used.
+- Restoration of the previous player and video mute states. Videos that were already muted stay muted.
+- Detection of visible ad controls when YouTube's usual ad classes are absent, and continued muting when ad sources reset the audio.
+- Handling of replaced players, navigation, and page hide/restore.
+- Automated regression checks for ad detection, mute restoration, native controls, and media fallback.
 
-This branch is based on the Firefox `0.6.0_hotfix` release. Ads are muted by
-default; the video's previous mute state is restored when ads finish. Videos
-that were already muted stay muted. Change **Mute ads** in the extension's
-preferences; changes apply to open YouTube tabs immediately.
+## Download and try it
 
-Run `make build` to create `build/yt-ad-autoskipper.zip`. For a temporary install,
-open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**,
-and select `manifest.json` in this directory. Disable the store version first
-to avoid running two skippers. Temporary add-ons are removed on Firefox restart;
-permanent installation in standard Firefox requires Mozilla signing.
+Download the ZIP or **unsigned XPI** from [Releases](https://github.com/justinluque/yt-ad-autoskipper/releases).
 
-Run the regression checks with `node --test tests/*.test.cjs`.
+For a temporary Firefox installation:
 
-### Chrome
+1. Disable the original extension if installed, to avoid running two skippers.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Choose **Load Temporary Add-on** and select the XPI. Alternatively, extract the ZIP and select `manifest.json`.
+4. Refresh any open YouTube tabs.
 
-[Get it from Chrome Web Store](https://chrome.google.com/webstore/detail/youtube-ad-auto-skipper/lokpenepehfdekijkebhpnpcjjpngpnd)
+Temporary installations are removed when Firefox restarts. The XPI published here is unsigned; it is not a Mozilla Add-ons listing or a permanently installable package for standard Firefox.
 
-### Firefox
+In the extension's preferences, toggle **Mute ads** to enable or disable ad muting. Automatic skipping remains active.
 
-[Get it from Firefox Addon Marketplace](https://addons.mozilla.org/en-US/firefox/addon/youtube-ad-auto-skipper/)
+## Build and test
 
-### Safari
+With Node.js installed, run:
 
-There is a port available:
-[ohanedan](https://github.com/ohanedan)/**[yt-ad-autoskipper-safari](https://github.com/ohanedan/yt-ad-autoskipper-safari)**
+```sh
+node --test tests/*.test.cjs
+```
 
----
+With `make` and `zip` installed, run:
 
-If you think this extension has made your YouTube experience better, would you care to buy me a cup of coffee? [You can donate whatever you want.](https://paypal.me/squgeim)
+```sh
+make build
+```
+
+This produces `build/yt-ad-autoskipper.zip` and `build/yt-ad-autoskipper.xpi` from the same extension files. No dependencies need to be installed.
+
+Version 0.6.4 passed 18 automated regression tests and was manually confirmed working in Firefox by this fork's maintainer. YouTube changes its player periodically; please include the affected player layout and Firefox version when reporting a problem.
+
+## Privacy
+
+The extension stores the mute preference locally using Firefox extension storage. It contains no analytics or telemetry and does not send browsing data to a separate service. Its content scripts run on YouTube pages to detect ads and operate player controls.
+
+## Credits and license
+
+The original extension, skip-button automation, icon, and underlying Firefox codebase were created by **Shreya Dahal (squgeim) and the upstream contributors**. Their Git history is preserved in this fork. Thank you for making the project available as open source.
+
+- [Original repository](https://github.com/squgeim/yt-ad-autoskipper)
+- [Original Firefox add-on](https://addons.mozilla.org/en-US/firefox/addon/youtube-ad-auto-skipper/)
+- [Original Chrome extension](https://chrome.google.com/webstore/detail/youtube-ad-auto-skipper/lokpenepehfdekijkebhpnpcjjpngpnd)
+- [Support the original author](https://paypal.me/squgeim)
+
+This fork starts from the legacy Firefox 0.6.0 codebase at upstream commit `3d88e1c` and adds the ad-muting preference, detection and restoration logic, native mute synchronization, regression tests, and packaging/documentation changes. It does not include the newer TypeScript master branch's subscription features.
+
+Distributed under the **GNU General Public License v3.0**, as in the original project. See [LICENSE.md](LICENSE.md). Existing author credits and the original license are retained.

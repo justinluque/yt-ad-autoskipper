@@ -1,11 +1,11 @@
 {
-  "name": "YouTube Ad Auto-skipper",
+  "name": "YouTube Ad Auto-skipper — Firefox fork",
   "short_name": "YouTube Ad Auto-skipper",
-  "description": "YouTube Ad Skipper is an extension that auto skips ads after YouTube provides a skip ad button. It does not block an ad.",
+  "description": "Firefox fork of Shreya Dahal's YouTube Ad Auto-skipper. Automatically skip available ads, mute ads, and restore the previous audio state.",
   "manifest_version": 2,
-  "version": "0.6.2",
-  "author": "Shreya Dahal",
-  "homepage_url": "https://github.com/squgeim/yt-ad-autoskipper",
+  "version": "0.6.4",
+  "author": "Shreya Dahal (original); Justin Luque (Firefox fork)",
+  "homepage_url": "https://github.com/justinluque/yt-ad-autoskipper",
   "content_scripts": [
     {
       "matches": [

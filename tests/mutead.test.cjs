@@ -38,8 +38,10 @@ async function setup(preference = true, initialPlayers = [], deferred = false) {
   };
 }
 function player(videos, ad = true) {
-  const adPlayer = { ad, markers: [], classList: { contains: () => adPlayer.ad },
-    querySelectorAll: selector => selector === 'video' ? videos : adPlayer.markers };
+  const adPlayer = { ad, markers: [], buttons: [],
+    classList: { contains: () => adPlayer.ad },
+    querySelectorAll: selector => selector === 'video' ? videos :
+      selector === '.ytp-mute-button' ? adPlayer.buttons : adPlayer.markers };
   return adPlayer;
 }
 
@@ -78,7 +80,8 @@ test('player and video replacement restore old videos and mute new ads', async (
   const second = { muted: false };
   const p = player([first]);
   const app = await setup(true, [p]);
-  p.querySelectorAll = () => [second];
+  const originalQuery = p.querySelectorAll;
+  p.querySelectorAll = selector => selector === 'video' ? [second] : originalQuery(selector);
   app.update();
   assert.equal(first.muted, false);
   assert.equal(second.muted, true);
@@ -143,4 +146,159 @@ test('a YouTube audio reset during an ad is muted again and original state resto
   p.ad = false;
   app.update();
   assert.equal(video.muted, false);
+});
+
+function nativePlayer(videos, initiallyMuted = false, affectMedia = true) {
+  const p = player(videos);
+  p.nativeMuted = initiallyMuted;
+  p.calls = [];
+  p.wrappedJSObject = {
+    isMuted: () => p.nativeMuted,
+    mute() {
+      p.calls.push('mute');
+      p.nativeMuted = true;
+      if (affectMedia) videos.forEach(video => { video.muted = true; });
+      if (p.onVolumeChange) p.onVolumeChange();
+    },
+    unMute() {
+      p.calls.push('unMute');
+      p.nativeMuted = false;
+      if (affectMedia) videos.forEach(video => { video.muted = false; });
+      if (p.onVolumeChange) p.onVolumeChange();
+    },
+  };
+  return p;
+}
+
+test('native player mute is invoked and both player and media are restored', async () => {
+  const video = { muted: false };
+  const p = nativePlayer([video]);
+  const app = await setup(true, [p]);
+  assert.equal(p.nativeMuted, true);
+  assert.equal(video.muted, true);
+  app.update();
+  app.events.poll();
+  assert.deepEqual(p.calls, ['mute']);
+  p.ad = false;
+  app.update();
+  assert.equal(p.nativeMuted, false);
+  assert.equal(video.muted, false);
+  assert.deepEqual(p.calls, ['mute', 'unMute']);
+});
+
+test('native player already muted is never toggled or unmuted', async () => {
+  const video = { muted: true };
+  const p = nativePlayer([video], true);
+  const app = await setup(true, [p]);
+  app.events.poll();
+  p.ad = false;
+  app.update();
+  assert.equal(video.muted, true);
+  assert.equal(p.nativeMuted, true);
+  assert.deepEqual(p.calls, []);
+});
+
+test('direct media fallback works even when native mute leaves media audible', async () => {
+  const video = { muted: false };
+  const p = nativePlayer([video], false, false);
+  const app = await setup(true, [p]);
+  assert.equal(p.nativeMuted, true);
+  assert.equal(video.muted, true);
+  video.muted = false;
+  app.events.volumechange();
+  assert.equal(video.muted, true);
+  p.nativeMuted = false;
+  app.events.poll();
+  assert.equal(p.nativeMuted, true);
+  assert.deepEqual(p.calls, ['mute', 'mute']);
+  app.preference(false);
+  assert.equal(p.nativeMuted, false);
+  assert.equal(video.muted, false);
+});
+
+test('volume button fallback clicks before direct media mute and restores afterward', async () => {
+  const video = { muted: false };
+  const p = player([video]);
+  let clicks = 0;
+  p.buttons = [{ click() { clicks++; video.muted = !video.muted; } }];
+  const app = await setup(true, [p]);
+  assert.equal(clicks, 1);
+  assert.equal(video.muted, true);
+  app.events.poll();
+  assert.equal(clicks, 1);
+  p.ad = false;
+  app.update();
+  assert.equal(clicks, 2);
+  assert.equal(video.muted, false);
+});
+
+test('late native controls synchronize even after media fallback muted the ad', async () => {
+  const video = { muted: false };
+  const p = player([video]);
+  const app = await setup(true, [p]);
+  assert.equal(video.muted, true);
+  let muted = false;
+  p.wrappedJSObject = {
+    isMuted: () => muted,
+    mute: () => { muted = true; },
+    unMute: () => { muted = false; },
+  };
+  app.update();
+  assert.equal(muted, true);
+  app.events.pagehide();
+  assert.equal(muted, false);
+  assert.equal(video.muted, false);
+});
+
+test('native volume events cannot re-enter muting or restoration', async () => {
+  const video = { muted: false };
+  const p = nativePlayer([video]);
+  const app = await setup(false, [p]);
+  p.onVolumeChange = app.events.volumechange;
+  app.preference(true);
+  assert.equal(p.nativeMuted, true);
+  app.preference(false);
+  assert.equal(p.nativeMuted, false);
+  assert.equal(video.muted, false);
+  assert.deepEqual(p.calls, ['mute', 'unMute']);
+});
+
+test('replacing players restores native state of the old player', async () => {
+  const first = { muted: false };
+  const second = { muted: false };
+  const oldPlayer = nativePlayer([first]);
+  const newPlayer = nativePlayer([second]);
+  const app = await setup(true, [oldPlayer]);
+  app.players([newPlayer]);
+  assert.equal(oldPlayer.nativeMuted, false);
+  assert.equal(first.muted, false);
+  assert.equal(newPlayer.nativeMuted, true);
+  assert.equal(second.muted, true);
+});
+
+test('a rejected native mute and click still leave direct muting working', async () => {
+  const video = { muted: false };
+  const p = player([video]);
+  p.wrappedJSObject = { mute() { throw new Error('unavailable'); } };
+  p.buttons = [{ click() { throw new Error('rejected'); } }];
+  const app = await setup(true, [p]);
+  assert.equal(video.muted, true);
+  p.ad = false;
+  app.update();
+  assert.equal(video.muted, false);
+});
+
+test('replacement media inheriting native ad mute is unmuted after the ad', async () => {
+  const first = { muted: false };
+  const p = nativePlayer([first]);
+  const app = await setup(true, [p]);
+  const replacement = { muted: true };
+  const originalQuery = p.querySelectorAll;
+  p.querySelectorAll = selector => selector === 'video' ? [replacement] : originalQuery(selector);
+  app.update();
+  assert.equal(replacement.muted, true);
+  p.ad = false;
+  app.update();
+  assert.equal(p.nativeMuted, false);
+  assert.equal(replacement.muted, false);
 });
